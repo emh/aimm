@@ -1,28 +1,22 @@
 :root {
-    --yellow-green-crayola: #d9ed92ff;
-    --yellow-green-crayola-2: #b5e48cff;
-    --granny-smith-apple: #99d98cff;
-    --ocean-green: #76c893ff;
-    --keppel: #52b69aff;
-    --viridian-green: #34a0a4ff;
-    --blue-munsell: #168aadff;
-    --cg-blue: #1a759fff;
-    --lapis-lazuli: #1e6091ff;
-    --yale-blue: #184e77ff;
+    --ash-gray: #cad2c5ff;
+    --cambridge-blue: #84a98cff;
+    --hookers-green: #52796fff;
+    --dark-slate-gray: #354f52ff;
+    --charcoal: #2f3e46ff;
 
-    --background-color: var(--cg-blue);
+    --background-color: var(--ash-gray);
 
-    --node-background-color: var(--ocean-green);
+    --node-background-color: var(--dark-slate-gray);
     --node-outline-color: var(--mint-cream);
-    --node-selected-color: var(--yellow-green-crayola);
-    --node-text-color: var(--yale-blue);
+    --node-selected-color: var(--hookers-green);
+    --node-text-color: var(--ash-gray);
 
-    --edge-color: var(--ocean-green);
-    --edge-text-color: var(--ocean-green);
+    --edge-color: var(--dark-slate-gray);
+    --edge-text-color: var(--dark-slate-gray);
 
-    --control-background: var(--yale-blue);
-    --control-background-hover: var(--blue-munsell);
-    --control-color: var(--yellow-green-crayola);
+    --button-background-color: var(--cambridge-blue);
+    --button-icon-color: var(--charcoal);
 }
 
 * {
@@ -89,8 +83,8 @@ html, body {
     justify-content: center;
     height: 16px;
     width: 16px;
-    background-color: var(--node-selected-color);
-    color: var(--node-text-color);
+    background-color: var(--button-background-color);
+    color: var(--button-icon-color);
     border-radius: 50%;
     visibility: hidden;
 }
