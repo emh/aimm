@@ -27,7 +27,7 @@
 html {
     background-color: var(--background-color);
     color: var(--grid-color);
-    font-size: 12px;
+    font-size: 16px;
 }
 
 html, body {
@@ -111,13 +111,48 @@ html, body {
     text-align: center;
 }
 
-.edge:empty {
+.edge.empty:not(.selected) {
     visibility: hidden;
+    pointer-events: none;
+}
+
+.edge .remove-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+
+.edge .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
+    width: 16px;
+    background-color: var(--button-background-color);
+    color: var(--button-icon-color);
+    border-radius: 50%;
+    visibility: hidden;
+}
+
+.edge.selected .button {
+    visibility: visible;
+}
+
+.edge .value {
+    outline: none;
 }
 
 .canvas path {
     fill: none;
     stroke: var(--edge-color);
+    stroke-width: 1;
+}
+
+.canvas path.bg {
+    fill: none;
+    stroke: var(--background-color);
+    stroke-width: 10;
 }
 
 .icon {

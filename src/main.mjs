@@ -2,7 +2,8 @@ const state = {
     nodes: [],
     edges: [],
     nextId: 1,
-    selectedNodeId: null
+    selectedNodeId: null,
+    selectedEdge: null
 };
 
 const getNode = (id) => state.nodes.find((node) => node.id === id);
@@ -40,8 +41,10 @@ function createNode({ id }) {
         if (event.button !== 0 || event.ctrlKey) return;
 
         state.selectedNodeId = id;
+        state.selectedEdge = null;
 
         pub('selectNode', { id });
+        pub('selectEdge', { from: null, to: null })
 
         document.addEventListener('mousemove', handleDragNode);
         document.addEventListener('mouseup', handleDropNode);
@@ -67,7 +70,7 @@ function createNode({ id }) {
 
                 pub('removeEdge', { from: edge.from, to: edge.to });
             }
-        } while(index >= 0);
+        } while (index >= 0);
 
         state.selectedNodeId = null;
 
@@ -152,7 +155,7 @@ function handleDropNew(event) {
 }
 
 function selectNode({ id }) {
-    let el = document.querySelector('.selected');
+    let el = document.querySelector('.node.selected');
 
     if (el) {
         el.classList.remove('selected');
@@ -216,10 +219,9 @@ function updateNewEdge({ x, y }) {
 }
 
 function removeNewEdge() {
-    const svg = document.querySelector('svg.canvas');
     const path = document.getElementById('new-edge-path');
 
-    svg.removeChild(path);
+    path.remove();
 }
 
 function createEdge({ from, to }) {
@@ -227,8 +229,11 @@ function createEdge({ from, to }) {
 
     const svg = document.querySelector('svg.canvas');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const pathBg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
     path.id = `edge-path-${from}-${to}`;
+    pathBg.id = `edge-path-bg-${from}-${to}`;
+    pathBg.classList.add('bg');
 
     const fromNode = getNode(from);
     const toNode = getNode(to);
@@ -237,19 +242,37 @@ function createEdge({ from, to }) {
     const { midX, midY } = calculateMidpoint(fromNode, toNode);
 
     path.setAttribute('d', d);
+    pathBg.setAttribute('d', d);
 
-    svg.append(path);
+    svg.append(pathBg, path);
 
     const template = document.getElementById('edge-template');
     const el = template.content.firstElementChild.cloneNode(true);
+    const value = el.querySelector('.value');
 
     el.id = `edge-${from}-${to}`;
     el.classList.add('edge');
-    el.innerText = edge.value;
+    el.classList.toggle('empty', edge.value === '');
+    value.innerText = edge.value;
     el.style.top = `${midY}px`;
     el.style.left = `${midX}px`;
 
-    el.addEventListener('input', () => {
+    const clickHandler = (event) => {
+        event.stopPropagation();
+
+        if (event.button !== 0 || event.ctrlKey) return;
+
+        state.selectedEdge = { from, to };
+        state.selectedNodeId = null;
+
+        pub('selectNode', { id: null });
+        pub('selectEdge', { from, to });
+    };
+
+    path.addEventListener('click', clickHandler);
+    pathBg.addEventListener('click', clickHandler);
+    value.addEventListener('click', clickHandler);
+    value.addEventListener('input', () => {
         const value = el.innerText;
         const edge = getEdge(from, to);
 
@@ -258,9 +281,45 @@ function createEdge({ from, to }) {
         pub('edgeChange', { from, to });
     });
 
+    const removeButton = el.querySelector('.remove-button');
+    removeButton.addEventListener('mousedown', (event) => event.stopPropagation());
+    removeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+
+        let index = state.edges.findIndex((edge) => edge.from === from && edge.to === to);
+        state.edges.splice(index, 1);
+        pub('removeEdge', { from, to });
+
+        state.selectedEdge = null;
+
+        pub('selectEdge', { from: null, to: null });
+    });
+
     const edges = document.getElementById('edges');
 
     edges.append(el);
+}
+
+function updateEdge({ from, to }) {
+    const edge = getEdge(from, to);
+    const label = document.getElementById(`edge-${from}-${to}`);
+
+    label.classList.toggle('empty', edge.value === '');
+}
+
+function selectEdge(edge) {
+    let el = document.querySelector('.edge.selected');
+
+    if (el) {
+        el.classList.remove('selected');
+    }
+
+    if (edge.from && edge.to) {
+        el = document.getElementById(`edge-${edge.from}-${edge.to}`);
+
+        el.classList.add('selected');
+        el.querySelector('.value').focus();
+    }
 }
 
 function updateEdges({ id }) {
@@ -271,8 +330,10 @@ function updateEdges({ id }) {
 
             const d = calculatePath(fromNode, toNode);
             const path = document.getElementById(`edge-path-${from}-${to}`);
+            const pathBg = document.getElementById(`edge-path-bg-${from}-${to}`);
 
             path.setAttribute('d', d);
+            pathBg.setAttribute('d', d);
 
             const label = document.getElementById(`edge-${from}-${to}`);
             const { midX, midY } = calculateMidpoint(fromNode, toNode);
@@ -285,21 +346,20 @@ function updateEdges({ id }) {
 
 function removeNode({ id }) {
     const el = document.getElementById(`node-${id}`);
-    const nodes = document.getElementById('nodes');
 
-    nodes.removeChild(el);
+    el.remove();
 }
 
 function removeEdge({ from, to }) {
     const path = document.getElementById(`edge-path-${from}-${to}`);
-    const svg = document.querySelector('svg.canvas');
+    const pathBg = document.getElementById(`edge-path-bg-${from}-${to}`);
 
-    svg.removeChild(path);
+    path.remove();
+    pathBg.remove();
 
     const label = document.getElementById(`edge-${from}-${to}`);
-    const edges = document.getElementById('edges');
 
-    edges.removeChild(label);
+    label.remove();
 }
 
 async function fetchRelatedConcepts(node) {
@@ -347,6 +407,8 @@ sub('createEdge', createEdge);
 sub('moveNode', updateEdges);
 sub('removeNode', removeNode);
 sub('removeEdge', removeEdge);
+sub('selectEdge', selectEdge);
+sub('edgeChange', updateEdge);
 
 const app = document.getElementById('app');
 const { height, width } = app.getBoundingClientRect();
@@ -358,15 +420,18 @@ svg.setAttribute("width", width + "px");
 
 app.append(svg);
 app.addEventListener('click', () => {
-    console.log('click');
+    console.log('app click');
     state.selectedNodeId = null;
+    state.selectedEdge = null;
     pub('selectNode', { id: null });
+    pub('selectEdge', { from: null, to: null });
 });
 
 if (state.nodes.length === 0) {
     const id = state.nextId++;
     state.nodes.push({ id, value: '', x: width / 2, y: height / 2 });
     state.selectedNodeId = id;
+    state.selectedEdge = null;
 
     pub('createNode', { id });
     pub('selectNode', { id });
