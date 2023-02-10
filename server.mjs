@@ -41,13 +41,10 @@ fastify.post('/api/ai', { schema }, async (request, reply) => {
 
         const text = response.data.choices[0].text;
 
-        console.log(text);
-
         try {
             const a = text.indexOf('{');
             const b = text.lastIndexOf('}');
             const s = text.substring(a, b + 1);
-            console.log(s);
 
             json = JSON.parse(s);
         } catch (error) {

@@ -57,7 +57,7 @@ html, body {
     position: absolute;
     transform: translate(-50%, -50%);
     border-radius: 5px;
-    padding: 5px;
+    padding: 8px 12px;
     cursor: pointer;
     user-select: none;
     min-width: 75px;
@@ -67,6 +67,40 @@ html, body {
 
 .node.selected {
     background-color: var(--node-selected-color);
+}
+
+.node .add-button {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+}
+
+.node .remove-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+
+.node .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
+    width: 16px;
+    background-color: var(--node-selected-color);
+    color: var(--node-text-color);
+    border-radius: 50%;
+    visibility: hidden;
+}
+
+.node.selected .button {
+    visibility: visible;
+}
+
+.node .value {
+    outline: none;
 }
 
 .edge {
@@ -83,47 +117,18 @@ html, body {
     text-align: center;
 }
 
-path {
+.edge:empty {
+    visibility: hidden;
+}
+
+.canvas path {
     fill: none;
     stroke: var(--edge-color);
 }
 
-#controls {
-    position: absolute;
-    display: flex;
-    justify-content: space-between;
-    gap: 5px;
-    height: 50px;
-    transform: translate(-50%, 0);
-    min-width: 110px;
-    opacity: 0;
-    transition: opacity 0.5s;
-}
-
-#controls > div {
-    border: solid 1px var(--control-color);
-    border-radius: 50%;
-    height: 32px;
-    width: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--control-background);
-    transition: background-color 0.5s;
-}
-
-#controls > div:hover {
-    background-color: var(--control-background-hover);
-}
-
 .icon {
-    color: var(--control-color);
     stroke-width: 1;
-    height: 24px;
-    width: 24px;
+    height: 12px;
+    width: 12px;
     cursor: pointer;
-}
-
-#add-button {
-    margin-top: 10px;
 }
