@@ -427,6 +427,31 @@ app.addEventListener('click', () => {
     pub('selectEdge', { from: null, to: null });
 });
 
+const toolbarAddButton = document.querySelector('#toolbar .add-button');
+
+toolbarAddButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const id = state.nextId++;
+    state.nodes.push({ id, value: '', x: width / 2, y: height / 2 });
+    state.selectedNodeId = id;
+    state.selectedEdge = null;
+
+    pub('createNode', { id });
+    pub('selectNode', { id });
+});
+
+const toolbarAiButton = document.querySelector('#toolbar .ai-button');
+
+toolbarAiButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    if (state.selectedNodeId) {
+        const node = getNode(state.selectedNodeId);
+
+        fetchRelatedConcepts(node);
+    }
+});
+
 if (state.nodes.length === 0) {
     const id = state.nextId++;
     state.nodes.push({ id, value: '', x: width / 2, y: height / 2 });

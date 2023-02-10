@@ -17,6 +17,10 @@
 
     --button-background-color: var(--cambridge-blue);
     --button-icon-color: var(--charcoal);
+
+    --toolbar-background-color: var(--cambridge-blue);
+    --toolbar-button-background-color: var(--cambridge-blue);
+    --toolbar-button-icon-color: var(--charcoal);
 }
 
 * {
@@ -160,4 +164,32 @@ html, body {
     height: 12px;
     width: 12px;
     cursor: pointer;
+}
+
+#toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: var(--toolbar-background-color);
+    height: 32px;
+    border-radius: 12px;
+    padding: 0px 10px;
+    gap: 10px;
+}
+
+#toolbar .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--toolbar-button-background-color);
+    color: var(--toolbar-button-icon-color);
+    border-radius: 50%;
+}
+
+#toolbar .icon {
+    height: 24px;
+    width: 24px;
 }
