@@ -386,11 +386,14 @@ async function fetchRelatedConcepts(node) {
         })
     })).json();
 
+    const viewport = document.getElementById('viewport');
+    const { scrollLeft, scrollTop } = viewport;
+
     const nodeEl = document.getElementById(`node-${node.id}`);
     const { left, top, width, height } = nodeEl.getBoundingClientRect();
 
-    const x = left + width / 2 + 250;
-    const y = top - height / 2 - 75;
+    const x = scrollLeft + left + width / 2 + 250;
+    const y = scrollTop + top - height / 2 - 75;
 
     response.connections.forEach((connection, i) => {
         let targetNode = state.nodes.find((n) => n.value === connection.concept);
@@ -453,10 +456,12 @@ const toolbarAddButton = document.querySelector('#toolbar .add-button');
 
 toolbarAddButton.addEventListener('click', (event) => {
     const viewport = document.getElementById('viewport');
+    const { scrollLeft, scrollTop } = viewport;
+    const { width, height } = viewport.getBoundingClientRect();
 
     event.stopPropagation();
     const id = state.nextId++;
-    state.nodes.push({ id, value: '', x: width / 2, y: height / 2 });
+    state.nodes.push({ id, value: '', x: scrollLeft + width / 2, y: scrollTop + height / 2 });
     state.selectedNodeId = id;
     state.selectedEdge = null;
 
