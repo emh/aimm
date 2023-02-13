@@ -3,7 +3,8 @@ const state = {
     edges: [],
     nextId: 1,
     selectedNodeId: null,
-    selectedEdge: null
+    selectedEdge: null,
+    canvas: { height: 0, width: 0 }
 };
 
 const getNode = (id) => state.nodes.find((node) => node.id === id);
@@ -84,7 +85,10 @@ function createNode({ id }) {
 
         if (event.button !== 0 || event.ctrlKey) return;
 
-        createNewEdge({ id, x: event.clientX, y: event.clientY });
+        const x = event.clientX + viewport.scrollLeft;
+        const y = event.clientY + viewport.scrollTop;
+
+        createNewEdge({ id, x, y });
 
         document.addEventListener('mousemove', handleDragNew);
         document.addEventListener('mouseup', handleDropNew);
@@ -111,16 +115,20 @@ function createNode({ id }) {
 }
 
 function handleDragNode(event) {
-    const el = document.getElementById(`node-${state.selectedNodeId}`);
-    const app = document.getElementById('app');
+    const viewport = document.getElementById('viewport');
 
-    const { right, bottom } = app.getBoundingClientRect();
-    const { height, width } = el.getBoundingClientRect();
-
-    const x = Math.min(right - width / 2, Math.max(width / 2, event.clientX));
-    const y = Math.min(bottom - height / 2, Math.max(height / 2, event.clientY));
+    const x = event.clientX + viewport.scrollLeft;
+    const y = event.clientY + viewport.scrollTop;
 
     const node = getNode(state.selectedNodeId);
+    const canvas = state.canvas;
+
+    if (x > canvas.width * 0.8 || y > canvas.height * 0.8) {
+        if (x > canvas.width * 0.8) canvas.width = canvas.width * 1.2;
+        if (y > canvas.height * 0.8) canvas.height = canvas.height * 1.2;
+
+        pub('resizeCanvas');
+    }
 
     node.x = x;
     node.y = y;
@@ -134,14 +142,19 @@ function handleDropNode(event) {
 }
 
 function handleDragNew(event) {
-    updateNewEdge({ x: event.clientX, y: event.clientY });
+    const x = event.clientX + viewport.scrollLeft;
+    const y = event.clientY + viewport.scrollTop;
+
+    updateNewEdge({ x, y });
 }
 
 function handleDropNew(event) {
     removeNewEdge();
 
     const id = state.nextId++;
-    state.nodes.push({ id, value: '', x: event.clientX, y: event.clientY });
+    const x = event.clientX + viewport.scrollLeft;
+    const y = event.clientY + viewport.scrollTop;
+    state.nodes.push({ id, value: '', x, y });
     state.edges.push({ from: state.selectedNodeId, to: id, value: '' });
 
     pub('createNode', { id });
@@ -199,7 +212,7 @@ function calculatePath({ x: x1, y: y1 }, { x: x2, y: y2 }) {
 }
 
 function createNewEdge({ id, x, y }) {
-    const svg = document.querySelector('svg.canvas');
+    const svg = document.getElementById('paths');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const fromNode = getNode(id);
     const d = calculatePath(fromNode, { x, y });
@@ -227,7 +240,7 @@ function removeNewEdge() {
 function createEdge({ from, to }) {
     const edge = getEdge(from, to);
 
-    const svg = document.querySelector('svg.canvas');
+    const svg = document.getElementById('paths');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const pathBg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
@@ -400,6 +413,18 @@ async function fetchRelatedConcepts(node) {
     pub('fetchFinished');
 }
 
+function resizeCanvas() {
+    const { height, width } = state.canvas;
+
+    const svg = document.getElementById('paths');
+    svg.setAttribute("height", height + "px");
+    svg.setAttribute("width", width + "px");
+
+    const div = document.getElementById('canvas');
+    div.style.height = `${height}px`;
+    div.style.width = `${width}px`;
+}
+
 sub('createNode', createNode);
 sub('selectNode', selectNode);
 sub('moveNode', moveNode);
@@ -409,18 +434,15 @@ sub('removeNode', removeNode);
 sub('removeEdge', removeEdge);
 sub('selectEdge', selectEdge);
 sub('edgeChange', updateEdge);
+sub('resizeCanvas', resizeCanvas);
 
 const app = document.getElementById('app');
 const { height, width } = app.getBoundingClientRect();
-const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-svg.classList.add('canvas');
-svg.setAttribute("height", height + "px");
-svg.setAttribute("width", width + "px");
+state.canvas = { width, height };
+pub('resizeCanvas');
 
-app.append(svg);
 app.addEventListener('click', () => {
-    console.log('app click');
     state.selectedNodeId = null;
     state.selectedEdge = null;
     pub('selectNode', { id: null });
@@ -430,6 +452,8 @@ app.addEventListener('click', () => {
 const toolbarAddButton = document.querySelector('#toolbar .add-button');
 
 toolbarAddButton.addEventListener('click', (event) => {
+    const viewport = document.getElementById('viewport');
+
     event.stopPropagation();
     const id = state.nextId++;
     state.nodes.push({ id, value: '', x: width / 2, y: height / 2 });
@@ -450,6 +474,21 @@ toolbarAiButton.addEventListener('click', (event) => {
 
         fetchRelatedConcepts(node);
     }
+});
+
+const toolbarRemoveButton = document.querySelector('#toolbar .remove-button');
+
+toolbarRemoveButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    state.nodes.forEach(({ id }) => pub('removeNode', { id }));
+    state.edges.forEach(({ from, to }) => pub('removeEdge', { from, to }));
+
+    state.nodes = [];
+    state.edges = [];
+    state.selectedNodeId = null;
+    state.selectedEdge = null;
+    state.nextId = 1;
 });
 
 if (state.nodes.length === 0) {

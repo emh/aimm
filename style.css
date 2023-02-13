@@ -45,6 +45,12 @@ html, body {
     height: 100%;
 }
 
+#viewport {
+    height: 100%;
+    width: 100%;
+    overflow: scroll;
+}
+
 #nodes, #edges {
     position: relative;
 }
@@ -147,13 +153,13 @@ html, body {
     outline: none;
 }
 
-.canvas path {
+#paths path {
     fill: none;
     stroke: var(--edge-color);
     stroke-width: 1;
 }
 
-.canvas path.bg {
+#paths path.bg {
     fill: none;
     stroke: var(--background-color);
     stroke-width: 10;
