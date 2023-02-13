@@ -2,11 +2,12 @@
   "name": "aimm",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "build": "rollup --config --watch",
     "start": "node ./server.mjs"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
