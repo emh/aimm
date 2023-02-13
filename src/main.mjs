@@ -404,6 +404,8 @@ async function fetchRelatedConcepts(node) {
         })
     })).json();
 
+    console.log(response);
+
     const viewport = document.getElementById('viewport');
     const { scrollLeft, scrollTop } = viewport;
 
@@ -413,23 +415,28 @@ async function fetchRelatedConcepts(node) {
     const x = scrollLeft + left + width / 2 + 250;
     const y = scrollTop + top - height / 2 - 75;
 
-    response.connections.forEach((connection, i) => {
-        let targetNode = state.nodes.find((n) => n.value === connection.concept);
+    if (response.status === 'error') {
+        showError('Error contacting GPT. Please try again.');
+    } else {
+        response.connections.forEach((connection, i) => {
+            let targetNode = state.nodes.find((n) => n.value === connection.concept);
 
-        if (!targetNode) {
-            const id = state.nextId++;
-            targetNode = { id, value: connection.concept, x, y: y + i * 50 };
-            state.nodes.push(targetNode);
-            pub('createNode', { id });
-        }
+            if (!targetNode) {
+                const id = state.nextId++;
+                targetNode = { id, value: connection.concept, x, y: y + i * 50 };
+                state.nodes.push(targetNode);
+                pub('createNode', { id });
+            }
 
-        const edge = state.edges.find((e) => e.from === node.id && e.to === targetNode.id);
+            const edge = state.edges.find((e) => e.from === node.id && e.to === targetNode.id);
 
-        if (!edge) {
-            state.edges.push({ from: node.id, to: targetNode.id, value: connection.relationship });
-            pub('createEdge', { from: node.id, to: targetNode.id });
-        }
-    });
+            if (!edge) {
+                state.edges.push({ from: node.id, to: targetNode.id, value: connection.relationship });
+                pub('createEdge', { from: node.id, to: targetNode.id });
+            }
+        });
+    }
+
 
     pub('fetchFinished');
 }
@@ -456,6 +463,18 @@ function enableAiButton() {
     const button = document.querySelector('#toolbar .ai-button');
 
     button.classList.remove('processing');
+}
+
+function showError(message) {
+    const template = document.getElementById('dialog-template');
+    const el = template.content.firstElementChild.cloneNode(true);
+
+    el.querySelector('h1').innerText = 'Error';
+    el.querySelector('.body').innerText = message;
+    el.querySelector('button').addEventListener('click', () => el.remove());
+
+    app.append(el);
+    el.showModal();
 }
 
 sub('createNode', createNode);
@@ -513,7 +532,11 @@ toolbarAiButton.addEventListener('click', (event) => {
 
         if (node.value) {
             fetchRelatedConcepts(node);
+        } else {
+            showError('The selected concept node is blank. Fill in a concept.');
         }
+    } else {
+        showError('Select a concept node.');
     }
 });
 

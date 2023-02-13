@@ -22,6 +22,14 @@
     --toolbar-button-background-color: var(--dark-slate-gray);
     --toolbar-button-icon-color: var(--ash-gray);
     --toolbar-button-disabled-color: var(--cambridge-blue);
+
+    --dialog-background-color: var(--cambridge-blue);
+    --dialog-text-color: var(--charcoal);
+    --dialog-border-color: var(--charcoal);
+
+    --dialog-button-background-color: var(--cambridge-blue);
+    --dialog-button-highlight-color: var(--ash-gray);
+    --dialog-button-text-color: var(--charcoal);
 }
 
 * {
@@ -68,6 +76,7 @@ html, body {
     min-width: 75px;
     max-width: 150px;
     text-align: center;
+    font-size: 1.2rem;
 }
 
 .node.selected, .node:hover {
@@ -216,4 +225,44 @@ html, body {
     animation-iteration-count: infinite;
 
     color: var(--toolbar-button-disabled-color);
+}
+
+dialog {
+    background-color: var(--dialog-background-color);
+    color: var(--dialog-text-color);
+    padding: 0;
+    border: solid 1px var(--dialog-border-color);
+    min-width: 200px;
+}
+
+dialog h1 {
+    background-color: var(--dialog-border-color);
+    color: var(--dialog-background-color);
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 10px;
+}
+
+dialog div {
+    padding: 10px;
+}
+
+dialog .buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+dialog button {
+    background-color: var(--dialog-button-background-color);
+    border: solid 1px var(--dialog-button-text-color);
+    color: var(--dialog-button-text-color);
+    height: 30px;
+    font-size: 16px;
+    border-radius: 10px;
+    outline: none;
+}
+
+dialog button:hover {
+    background-color: var(--dialog-button-highlight-color);
 }

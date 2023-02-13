@@ -17,7 +17,7 @@ export default {
                 { src: 'style.css', dest: 'dist' }
             ],
             verbose: true,
-            watch: './style.css'
+            watch: ['./style.css', './index.html']
         }),
         nodeResolve()
     ]
