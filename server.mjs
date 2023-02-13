@@ -2,7 +2,9 @@ import Fastify from 'fastify'
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Configuration, OpenAIApi } from 'openai';
+
+import pkg from 'openai';
+const { Configuration, OpenAIApi } = pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
