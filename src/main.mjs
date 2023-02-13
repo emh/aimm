@@ -446,6 +446,18 @@ function resizeCanvas() {
     div.style.width = `${width}px`;
 }
 
+function disableAiButton() {
+    const button = document.querySelector('#toolbar .ai-button');
+
+    button.classList.add('processing');
+}
+
+function enableAiButton() {
+    const button = document.querySelector('#toolbar .ai-button');
+
+    button.classList.remove('processing');
+}
+
 sub('createNode', createNode);
 sub('selectNode', selectNode);
 sub('moveNode', moveNode);
@@ -456,6 +468,8 @@ sub('removeEdge', removeEdge);
 sub('selectEdge', selectEdge);
 sub('edgeChange', updateEdge);
 sub('resizeCanvas', resizeCanvas);
+sub('fetchStarted', disableAiButton);
+sub('fetchFinished', enableAiButton)
 
 const app = document.getElementById('app');
 const { height, width } = app.getBoundingClientRect();
@@ -492,10 +506,14 @@ const toolbarAiButton = document.querySelector('#toolbar .ai-button');
 toolbarAiButton.addEventListener('click', (event) => {
     event.stopPropagation();
 
+    if (event.target.closest('.processing')) return;
+
     if (state.selectedNodeId) {
         const node = getNode(state.selectedNodeId);
 
-        fetchRelatedConcepts(node);
+        if (node.value) {
+            fetchRelatedConcepts(node);
+        }
     }
 });
 

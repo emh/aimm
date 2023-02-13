@@ -18,9 +18,10 @@
     --button-background-color: var(--cambridge-blue);
     --button-icon-color: var(--charcoal);
 
-    --toolbar-background-color: var(--cambridge-blue);
-    --toolbar-button-background-color: var(--cambridge-blue);
-    --toolbar-button-icon-color: var(--charcoal);
+    --toolbar-background-color: var(--dark-slate-gray);
+    --toolbar-button-background-color: var(--dark-slate-gray);
+    --toolbar-button-icon-color: var(--ash-gray);
+    --toolbar-button-disabled-color: var(--cambridge-blue);
 }
 
 * {
@@ -198,4 +199,21 @@ html, body {
 #toolbar .icon {
     height: 24px;
     width: 24px;
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
+
+#toolbar .button.processing {
+    animation-duration: 2s;
+    animation-name: rotating;
+    animation-iteration-count: infinite;
+
+    color: var(--toolbar-button-disabled-color);
 }
