@@ -69,7 +69,7 @@ html, body {
     text-align: center;
 }
 
-.node.selected {
+.node.selected, .node:hover {
     background-color: var(--node-selected-color);
 }
 

@@ -148,17 +148,35 @@ function handleDragNew(event) {
     updateNewEdge({ x, y });
 }
 
+function getTargetEl(el) {
+    return el.closest('.node');
+}
+
 function handleDropNew(event) {
+    const targetEl = getTargetEl(event.target);
+
+    let id;
+
     removeNewEdge();
 
-    const id = state.nextId++;
-    const x = event.clientX + viewport.scrollLeft;
-    const y = event.clientY + viewport.scrollTop;
-    state.nodes.push({ id, value: '', x, y });
-    state.edges.push({ from: state.selectedNodeId, to: id, value: '' });
+    if (targetEl) {
+        id = Number(targetEl.id.split('-').pop());
+    } else {
+        const x = event.clientX + viewport.scrollLeft;
+        const y = event.clientY + viewport.scrollTop;
 
-    pub('createNode', { id });
-    pub('createEdge', { from: state.selectedNodeId, to: id });
+        id = state.nextId++;
+        state.nodes.push({ id, value: '', x, y });
+        pub('createNode', { id });
+    }
+
+    const edge1 = getEdge(state.selectedNodeId, id);
+    const edge2 = getEdge(id, state.selectedNodeId);
+
+    if (!edge1 && !edge2) {
+        state.edges.push({ from: state.selectedNodeId, to: id, value: '' });
+        pub('createEdge', { from: state.selectedNodeId, to: id });
+    }
 
     state.selectedNodeId = id;
     pub('selectNode', { id });
