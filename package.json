@@ -4,19 +4,16 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "build": "rollup --config",
-    "start": "web-dev-server --node-resolve --open --watch --root-dir dist"
+    "start": "node ./node_modules/parcel-bundler/bin/cli serve ./src/index.html --port 8080",
+    "prebuild": "shx rm -rf dist/*",
+    "build": "node ./node_modules/parcel-bundler/bin/cli build ./src/index.html --out-dir ./dist/ --public-url ./"
   },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@web/dev-server": "^0.1.35",
-    "rollup": "^3.13.0",
-    "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-copy-watch": "^0.0.1",
-    "rollup-plugin-delete": "^2.0.0"
+    "parcel-bundler": "^1.12.5",
+    "shx": "^0.3.4"
   }
 }
