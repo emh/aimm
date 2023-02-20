@@ -393,54 +393,6 @@ function removeEdge({ from, to }) {
     label.remove();
 }
 
-async function fetchRelatedConcepts(node) {
-    pub('fetchStarted');
-
-    const response = await (await fetch('/api/ai', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            concept: node.value
-        })
-    })).json();
-
-    console.log(response);
-
-    const viewport = document.getElementById('viewport');
-    const { scrollLeft, scrollTop } = viewport;
-
-    const nodeEl = document.getElementById(`node-${node.id}`);
-    const { left, top, width, height } = nodeEl.getBoundingClientRect();
-
-    const x = scrollLeft + left + width / 2 + 250;
-    const y = scrollTop + top - height / 2 - 75;
-
-    if (response.status === 'error') {
-        showError('Error contacting GPT. Please try again.');
-    } else {
-        response.connections.forEach((connection, i) => {
-            let targetNode = state.nodes.find((n) => n.value === connection.concept);
-
-            if (!targetNode) {
-                const id = state.nextId++;
-                targetNode = { id, value: connection.concept, x, y: y + i * 50 };
-                state.nodes.push(targetNode);
-                pub('createNode', { id });
-            }
-
-            const edge = state.edges.find((e) => e.from === node.id && e.to === targetNode.id);
-
-            if (!edge) {
-                state.edges.push({ from: node.id, to: targetNode.id, value: connection.relationship });
-                pub('createEdge', { from: node.id, to: targetNode.id });
-            }
-        });
-    }
-
-
-    pub('fetchFinished');
-}
-
 function resizeCanvas() {
     const { height, width } = state.canvas;
 
@@ -451,18 +403,6 @@ function resizeCanvas() {
     const div = document.getElementById('canvas');
     div.style.height = `${height}px`;
     div.style.width = `${width}px`;
-}
-
-function disableAiButton() {
-    const button = document.querySelector('#toolbar .ai-button');
-
-    button.classList.add('processing');
-}
-
-function enableAiButton() {
-    const button = document.querySelector('#toolbar .ai-button');
-
-    button.classList.remove('processing');
 }
 
 function showError(message) {
@@ -487,8 +427,6 @@ sub('removeEdge', removeEdge);
 sub('selectEdge', selectEdge);
 sub('edgeChange', updateEdge);
 sub('resizeCanvas', resizeCanvas);
-sub('fetchStarted', disableAiButton);
-sub('fetchFinished', enableAiButton)
 
 const app = document.getElementById('app');
 const { height, width } = app.getBoundingClientRect();
@@ -518,26 +456,6 @@ toolbarAddButton.addEventListener('click', (event) => {
 
     pub('createNode', { id });
     pub('selectNode', { id });
-});
-
-const toolbarAiButton = document.querySelector('#toolbar .ai-button');
-
-toolbarAiButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-
-    if (event.target.closest('.processing')) return;
-
-    if (state.selectedNodeId) {
-        const node = getNode(state.selectedNodeId);
-
-        if (node.value) {
-            fetchRelatedConcepts(node);
-        } else {
-            showError('The selected concept node is blank. Fill in a concept.');
-        }
-    } else {
-        showError('Select a concept node.');
-    }
 });
 
 const toolbarRemoveButton = document.querySelector('#toolbar .remove-button');
