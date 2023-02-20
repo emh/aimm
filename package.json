@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "build": "rollup --config --watch",
+    "build": "rollup --config",
     "start": "web-dev-server --node-resolve --open --watch --root-dir dist"
   },
   "type": "module",
