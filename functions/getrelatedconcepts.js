@@ -1,4 +1,4 @@
-import { OpenAIClient } from 'openai-fetch';
+import { Configuration, OpenAIApi } from "openai-edge"
 
 const prompt = (concept) => `
     I am building a concept map. Provide 5 related concepts and their relationships to "${concept}".
@@ -12,7 +12,10 @@ export async function onRequest(context) {
 
     console.log(context.env.OPENAI_API_KEY);
 
-    const openai = new OpenAIClient({ apiKey: context.env.OPENAI_API_KEY });
+    const configuration = new Configuration({
+        apiKey: context.env.OPENAI_API_KEY
+    });
+    const openai = new OpenAIApi(configuration)
 
     const { concept } = body;
 
@@ -22,17 +25,17 @@ export async function onRequest(context) {
     let i = 0;
 
     while (!json && i < 3) {
-        console.log(`attempt #{i}`);
-        const response = await openai.createCompletion({
+        console.log(`attempt ${i}`);
+        const response = await (await openai.createCompletion({
             model: 'text-davinci-003',
             prompt: prompt(concept),
             max_tokens: 1024,
             temperature: 0.7
-        });
+        })).json();
 
         console.log(response);
 
-        const text = response.completion;
+        const text = response.choices[0].text;
 
         try {
             const a = text.indexOf('{');
@@ -51,5 +54,9 @@ export async function onRequest(context) {
         return { status: 'error' };
     }
 
-    return new Response(JSON.stringify(json));
+    return new Response(JSON.stringify(json), {
+        headers: {
+            "content-type": "application/json"
+        }
+    });
 }
