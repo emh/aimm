@@ -22,6 +22,7 @@ export async function onRequest(context) {
     let i = 0;
 
     while (!json && i < 3) {
+        console.log(`attempt #{i}`);
         const response = await openai.createCompletion({
             model: 'text-davinci-003',
             prompt: prompt(concept),
