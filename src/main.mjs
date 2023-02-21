@@ -477,6 +477,16 @@ function showError(message) {
     el.showModal();
 }
 
+function showHelp(message) {
+    const template = document.getElementById('help-template');
+    const el = template.content.firstElementChild.cloneNode(true);
+
+    el.querySelector('button').addEventListener('click', () => el.remove());
+
+    app.append(el);
+    el.showModal();
+}
+
 sub('createNode', createNode);
 sub('selectNode', selectNode);
 sub('moveNode', moveNode);
@@ -564,3 +574,5 @@ if (state.nodes.length === 0) {
     pub('createNode', { id });
     pub('selectNode', { id });
 }
+
+showHelp();

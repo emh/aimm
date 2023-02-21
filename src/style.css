@@ -266,3 +266,11 @@ dialog button {
 dialog button:hover {
     background-color: var(--dialog-button-highlight-color);
 }
+
+.help {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 600px;
+    overflow-y: scroll;
+}
