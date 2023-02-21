@@ -18,7 +18,7 @@ export async function onRequest(context) {
 
     console.log(concept);
 
-    let json = {};
+    let json = null;
     let i = 0;
 
     while (!json && i < 3) {
